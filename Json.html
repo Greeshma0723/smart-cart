@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EasyShop Cart</title>
+
+<style>
+
+body{
+font-family:Verdana;
+background:#eef2f7;
+margin:0;
+}
+
+header{
+background:#34495e;
+color:white;
+padding:18px;
+text-align:center;
+}
+
+.container{
+width:90%;
+margin:auto;
+padding:20px;
+}
+
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+}
+
+.item{
+background:white;
+padding:20px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+button{
+background:#16a085;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#13856e;
+}
+
+.cart{
+margin-top:30px;
+background:white;
+padding:20px;
+border-radius:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+.summary{
+margin-top:15px;
+font-size:18px;
+}
+
+.total{
+font-size:22px;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>EasyShop Cart System</h1>
+<p>JSON Based Shopping Cart</p>
+</header>
+
+<div class="container">
+
+<h2>Available Products</h2>
+
+<div class="products">
+
+<div class="item">
+<h3>Tablet</h3>
+<p>₹20000</p>
+<button onclick="addItem('Tablet',20000)">Add</button>
+</div>
+
+<div class="item">
+<h3>Bluetooth Speaker</h3>
+<p>₹2500</p>
+<button onclick="addItem('Speaker',2500)">Add</button>
+</div>
+
+<div class="item">
+<h3>Camera</h3>
+<p>₹35000</p>
+<button onclick="addItem('Camera',35000)">Add</button>
+</div>
+
+<div class="item">
+<h3>Gaming Mouse</h3>
+<p>₹1500</p>
+<button onclick="addItem('Mouse',1500)">Add</button>
+</div>
+
+</div>
+
+<div class="cart">
+
+<h2>Your Cart</h2>
+
+<table id="cartTable">
+
+<thead>
+<tr>
+<th>Product</th>
+<th>Price</th>
+<th>Qty</th>
+<th>Total</th>
+<th>Remove</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<div class="summary">
+<p>Subtotal: ₹<span id="subtotal">0</span></p>
+<p>Discount (10% if bill > ₹15000): ₹<span id="discount">0</span></p>
+<p>GST (5%): ₹<span id="gst">0</span></p>
+<p class="total">Grand Total: ₹<span id="total">0</span></p>
+</div>
+
+<button onclick="clearCart()">Empty Cart</button>
+
+</div>
+</div>
+
+<script>
+
+let cart = JSON.parse(localStorage.getItem("easycart")) || [];
+
+function save(){
+localStorage.setItem("easycart",JSON.stringify(cart));
+}
+
+function addItem(name,price){
+
+let item = cart.find(p=>p.name===name);
+
+if(item){
+item.qty++;
+}
+else{
+cart.push({name:name,price:price,qty:1});
+}
+
+save();
+display();
+}
+
+function removeItem(index){
+cart.splice(index,1);
+save();
+display();
+}
+
+function clearCart(){
+cart=[];
+save();
+display();
+}
+
+function display(){
+
+let tbody=document.querySelector("#cartTable tbody");
+tbody.innerHTML="";
+
+let subtotal=0;
+
+cart.forEach((item,index)=>{
+
+subtotal+=item.price*item.qty;
+
+tbody.innerHTML+=`
+<tr>
+<td>${item.name}</td>
+<td>₹${item.price}</td>
+<td>${item.qty}</td>
+<td>₹${item.price*item.qty}</td>
+<td><button onclick="removeItem(${index})">X</button></td>
+</tr>
+`;
+
+});
+
+let discount=0;
+
+if(subtotal>15000){
+discount=subtotal*0.10;
+}
+
+let gst=(subtotal-discount)*0.05;
+
+let total=subtotal-discount+gst;
+
+document.getElementById("subtotal").innerText=subtotal;
+document.getElementById("discount").innerText=discount.toFixed(2);
+document.getElementById("gst").innerText=gst.toFixed(2);
+document.getElementById("total").innerText=total.toFixed(2);
+
+}
+
+display();
+
+</script>
+
+</body>
+</html>
