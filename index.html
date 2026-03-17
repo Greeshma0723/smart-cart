@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JSON Shopping Cart Manager</title>
+
+<style>
+body{
+    font-family: Arial;
+    margin:40px;
+}
+
+input,button{
+    padding:8px;
+    margin:5px;
+}
+
+table{
+    border-collapse: collapse;
+    width:70%;
+}
+
+table,th,td{
+    border:1px solid black;
+    padding:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Shopping Cart Manager (Example Product: Smartphone)</h2>
+
+<input type="text" id="name" placeholder="Product Name (Example: Smartphone)">
+<input type="number" id="price" placeholder="Price">
+<input type="number" id="qty" placeholder="Quantity">
+
+<button onclick="addItem()">Add Item</button>
+<button onclick="clearCart()">Clear Cart</button>
+
+<h3>Cart Items</h3>
+
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Price</th>
+<th>Quantity</th>
+<th>Total</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="cartTable"></tbody>
+</table>
+
+<h3>Bill Details</h3>
+
+<p>Subtotal: ₹ <span id="subtotal">0</span></p>
+<p>Discount (5% if bill > ₹10000): ₹ <span id="discount">0</span></p>
+<p><b>Final Total: ₹ <span id="final">0</span></b></p>
+
+<script>
+
+// JSON array to store cart items
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+// Save cart to localStorage
+function saveCart(){
+localStorage.setItem("cart",JSON.stringify(cart));
+}
+
+// Add item (Example: Smartphone)
+function addItem(){
+
+let name=document.getElementById("name").value;
+let price=parseFloat(document.getElementById("price").value);
+let qty=parseInt(document.getElementById("qty").value);
+
+if(name=="" || price<=0 || qty<=0){
+alert("Enter valid product details");
+return;
+}
+
+let item={
+name:name,
+price:price,
+qty:qty
+};
+
+cart.push(item);
+
+saveCart();
+displayCart();
+}
+
+// Delete item
+function deleteItem(index){
+cart.splice(index,1);
+saveCart();
+displayCart();
+}
+
+// Clear cart
+function clearCart(){
+cart=[];
+saveCart();
+displayCart();
+}
+
+// Display cart
+function displayCart(){
+
+let table=document.getElementById("cartTable");
+table.innerHTML="";
+
+let subtotal=0;
+
+cart.forEach((item,index)=>{
+
+let total=item.price*item.qty;
+subtotal+=total;
+
+table.innerHTML+=`
+<tr>
+<td>${item.name}</td>
+<td>${item.price}</td>
+<td>${item.qty}</td>
+<td>${total}</td>
+<td><button onclick="deleteItem(${index})">Delete</button></td>
+</tr>
+`;
+
+});
+
+// Discount calculation
+let discount=0;
+
+if(subtotal>10000){
+discount=subtotal*0.05;
+}
+
+// Final total
+let finalTotal=subtotal-discount;
+
+document.getElementById("subtotal").innerText=subtotal;
+document.getElementById("discount").innerText=discount;
+document.getElementById("final").innerText=finalTotal;
+
+}
+
+// Load cart when page opens
+displayCart();
+
+</script>
+
+</body>
+</html>
